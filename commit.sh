@@ -8,7 +8,7 @@ git config --global https.proxy 'socks5://127.0.0.1:7890'
 
 
 
-echo  "添加文件变动记录"
+echo  "测试打包工作流"
 git add -A
 git commit -m "初始化上传"
 echo -e "\n开始推送远程仓库.................\n"
