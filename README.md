@@ -1,0 +1,2 @@
+# FastText_Shop
+FastText_Shop是一个基于FastText和结巴分词的短文本分类工具，特点是高效易用，同时支持中文和英文语料。基本使用方法、灵感来自TextGrocery,并且和TextGrocery基本相同。
