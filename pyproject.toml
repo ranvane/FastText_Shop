@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "FastText_Shop"
+version = "0.0.5"
+description = "FastText_Shop是一个基于FastText和结巴分词的短文本分类工具，特点是高效易用，同时支持中文和英文语料。基本使用方法、灵感来自TextGrocery,并且和TextGrocery基本相同。"
+authors = ["ranvane <ranvane@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://gitee.com/ranvane/fasttext_shop"
+repository = "https://gitee.com/ranvane/fasttext_shop"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+fasttext = "^0.9.2"
+jieba = "^0.42.1"
+loguru = "^0.7.2"
+numpy = "^1.20.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+[build-system]
+requires = ["poetry>=1.0.0"]
+build-backend = "poetry.masonry.api"
+
+#设置poetry包管理工具的自定义pypi镜像源配置
+#[[tool.poetry.source]]
+#name = "aliyun"
+#url = "http://mirrors.aliyun.com/pypi/simple"
+#default = true
