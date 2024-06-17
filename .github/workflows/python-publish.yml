@@ -1,35 +1,114 @@
-# This workflow will upload a Python Package using Twine when a release is created
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Upload Python Package
+name: Build Python distributions
 
 on:
-  release:
-    types: [Build package]
-
-permissions:
-  contents: read
+  # 触发条件：当推送到被打上 "v0.*" 或 "draft-*" 标签的分支时
+  push:
+    tags:
+      - "v0.*"
+      - "draft-*"
 
 jobs:
-  deploy:
+  # 分别在不同平台构建 .whl 安装包
+  build_whl:
+    strategy:
+      # 使用 matrix 组合在多种 OS 平台上完成 wheel 的构建
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        # 给对应的 OS 添加一个新变量 plat_name
+        # Linux plat_name 中的 2_35 来自于 GNU libc 版本
+        include:
+          - os: ubuntu-latest
+            plat_name: manylinux_2_35_x86_64
+          - os: windows-latest
+            plat_name: win_amd64
 
-    runs-on:  [ubuntu-latest, windows-latest]
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install poetry
-        pip install -r requirements.txt
-    - name: Build package
-      run: poetry build 
+      - uses: actions/checkout@v3
+      - uses: pdm-project/setup-pdm@v3
+        with:
+          architecture: x64
+
+      # 查看 GNU libc 版本
+      - run: ldd --version
+      # 通过 PDM 构建 wheel
+      - name: PDM build wheels
+        # 指定 `--no-sdist` 参数时只生成二进制 wheel 文件
+        run: pdm build --no-sdist --config-setting="--plat-name=${{ matrix.plat_name }}"
+
+      # 将 dist/ 目录中的所有 .whl 文件上传暂存
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pdm-build-wheel-${{ matrix.plat_name }}
+          path: dist/*.whl
+
+  # 将源码打包为 tar.gz
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pdm-project/setup-pdm@v3
+
+      # 通过 PDM 打包源码
+      - name: PDM build source dist
+        # 指定 `--no-wheel` 参数时只生成打包的源码
+        run: pdm build --no-wheel
+
+      # 将 dist/ 目录中的打包的源码上传暂存
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pdm-build-sdist
+          path: dist/*.tar.gz
+
+  # 使用构建文件完成 pre-release
+  pre_release:
+    name: Pre-release package distributions to GitHub
+    # 只有 push 的 tag 以 "v" 起始时才运行该 job
+    # if: startsWith(github.event.ref, 'refs/tags/v')
+    # 且在 build_whl 和 build_sdist 两个 job 完成的情况下执行
+    needs: [build_whl, build_sdist]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+      # 每个 job 都会使用新的容器，需要将上传暂存的构件下载到 dist/ 目录
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: pdm-build-*
+          path: dist
+          merge-multiple: true
+      # 使用 dist/ 目录中的文件创建一个 pre-release
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/*"
+          prerelease: true
+
+  # # 将构建文件发布到 TestPyPI
+  # publish_pkg:
+  #   name: Publish package to TestPyPI
+  #   # 只有 push 的 tag 以 "v" 起始时才运行该 job
+  #   if: startsWith(github.event.ref, 'refs/tags/v')
+  #   needs: [build_whl, build_sdist]
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+
+  #   steps:
+  #     # 使用 PDM 发布已构建的文件
+  #     - uses: actions/checkout@v3
+  #     - uses: pdm-project/setup-pdm@v3
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         pattern: pdm-build-*
+  #         path: dist
+  #         merge-multiple: true
+  #     # `pdm publish --no-build` 会自动发布 `dist` 中预先构建好的文件
+  #     - name: Publish package distributions to TestPyPI
+  #       run: pdm publish --no-build --repository testpypi
