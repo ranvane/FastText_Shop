@@ -1,3 +1,6 @@
+import os
+
+CUR_DIR = os.path.dirname(__file__)
 g_cnns = [
     [100, "民生故事", "news_story"],
     [101, "文化", "news_culture"],
@@ -18,7 +21,7 @@ g_cnns = [
     [116, "电竞游戏", "news_game"],
 ]
 datas = []
-with open("toutiao_cat_data.txt", "r", encoding="utf-8") as f:
+with open(os.path.join(CUR_DIR, "toutiao_cat_data.txt"), "r", encoding="utf-8") as f:
     datas = f.readlines()
 print(g_cnns[0][0], g_cnns[0][1])
 
@@ -29,7 +32,7 @@ for g in g_cnns:
     new_datas = [
         (sublist[0].replace(str(g[0]), g[1]), sublist[1]) for sublist in new_datas
     ]
-with open("toutiao_data.txt", "w", encoding="utf-8") as f:
+with open(os.path.join(CUR_DIR, "toutiao_data.txt"), "w", encoding="utf-8") as f:
     for tup in new_datas:
         # 将元组转换为字符串，并用逗号分隔
         line = ",".join(str(x) for x in tup)

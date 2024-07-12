@@ -12,9 +12,9 @@ FastText使用[结巴分词](https://github.com/fxsjy/jieba)
 使用今日头条中文新闻（文本）分类数据集 [toutiao-text-classfication-dataset](https://github.com/BenDerPan/toutiao-text-classfication-dataset)
 
     数据规模：
-    
+
     共382688条，分布于15个分类中。
-    
+
     采集时间： 2018年05月
 
 分类器：automatic_optimization ，准确率：83% ，计算时间：超过5分钟（fasttext automatic_optimization 特性）
@@ -34,10 +34,14 @@ FastText使用[结巴分词](https://github.com/fxsjy/jieba)
     ('sports', '图文：法网孟菲尔斯苦战进16强 孟菲尔斯怒吼'),
     ('sports', '四川丹棱举行全国长距登山挑战赛 近万人参与')
 ]
-# 训练，可选参数model='skipgram'或者model='cbow'，默认skipgram。
->> fs.train(train_src, model='skipgram')
+# 训练
+>> fs.train(train_src)
 
-# 保存模型[use_poetry_upload2pypi  .md](..%2Franvane_hugo_blog%2Fcontent%2Fpost%2F%C8%D5%B3%A3%2Fuse_poetry_upload2pypi%20%20.md)
+# 数据量足够大的时候可以使用fasttext自动超参数优化训练，训练号的模型会自动保存，不再需要 fs.save()
+# FastText的自动调整功能允许您自动找到数据集的最佳超参数。找到最佳超参数对于构建高效模型至关重要，然而，手动搜索最佳超参数是困难的，参数是依赖的，每个参数的效果因数据集而异。
+# automatic_optimization训练时间比较长，一般超过5分钟，请耐心等待。。。。
+>> fs.automatic_optimization_train(train_src)
+# 保存模型
 >> fs.save()
 
 # 加载模型（名字和保存的一样）
@@ -49,14 +53,10 @@ FastText使用[结巴分词](https://github.com/fxsjy/jieba)
 >> new_fs.predict('考生必读：新托福写作考试评分标准')
 education
 
-# 使用fasttext自动超参数优化训练，训练号的模型会自动保存，不再需要 new_fs.save()
-# FastText的自动调整功能允许您自动找到数据集的最佳超参数。找到最佳超参数对于构建高效模型至关重要，然而，手动搜索最佳超参数是困难的，参数是依赖的，每个参数的效果因数据集而异。
-# automatic_optimization训练时间比较长，一般超过5分钟，请耐心等待。。。。
->> new_fs.automatic_optimization_train(train_src)
 
 # 预测
 >> new_fs.predict('考生必读：新托福写作考试评分标准')
-education
+['education'] [0.50007701]
 
 # 清除训练过程中产生的文件，只保留模型
 >> new_fs.clean()
@@ -72,3 +72,18 @@ education
     $ pip install FastText_Shop
 
 > 如果Windows下安装失败，请在http://www.lfd.uci.edu/~gohlke/pythonlibs/  下载fasttext的包。
+
+FastText与NumPy不兼容>=2.0.0的BUG：
+```
+return labels, np.array(probs, copy=False)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Unable to avoid copy while creating an array as requested.
+If using `np.array(obj, copy=False)` replace it with `np.asarray(obj)` to allow a copy when needed (no behavior change in NumPy 1.x).
+```
+发生错误是因为FastText使用np.array和copy=False参数，根据迁移指南，NumPy2.0.0不支持该参数。这使得代码与较新版本的NumPy不兼容。
+
+为了解决不兼容问题，更新了项目的需求，将NumPy的版本限制为小于2.0.0。具体来说，对requirements.txt文件进行了以下更改：
+
+numpy>=1.26.4,<2.0.0
+
+
