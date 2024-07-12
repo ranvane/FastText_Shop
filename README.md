@@ -1,11 +1,9 @@
 FastText_Shop
 ===========
 
-一个高效易用的短文本分类工具，基于简单包装[FastText](https://fasttext.cc/)项目
-,使用方法、灵感来自于TextGrocery并且和[TextGrocery](https://github.com/2shou/TextGrocery)基本相同。
+一个高效易用的短文本分类工具，基于简单包装[FastText](https://fasttext.cc/)项目,使用方法、灵感来自于TextGrocery并且和[TextGrocery](https://github.com/2shou/TextGrocery)基本相同。
 
-FastText使用[结巴分词](https://github.com/fxsjy/jieba)
-作为默认的分词单元，以支持中文的短文本分类，停用词表使用[stopwords](https://github.com/goto456/stopwords/tree/master)。
+FastText使用[结巴分词](https://github.com/fxsjy/jieba)作为默认的分词单元，以支持中文的短文本分类，停用词表使用[stopwords](https://github.com/goto456/stopwords/tree/master)。
 
 性能
 ----
@@ -61,6 +59,10 @@ FastText使用[结巴分词](https://github.com/fxsjy/jieba)
 ```
 
 ### 使用使用今日头条中文新闻（文本）分类数据集测试：
+下载地址：
+https://github.com/ranvane/FastText_Shop/blob/main/toutiao/toutiao_data.txt
+
+https://github.com/ranvane/FastText_Shop/blob/main/toutiao/toutiao_test_data.txt
 
 ```
 # 单项测试
@@ -139,9 +141,9 @@ Prefix dict has been built successfully.
 安装
 ----
 
-    $ pip install FastText_Shop
+    $ pip install -U FastText_Shop
 
-> 如果Windows下安装失败，请在http://www.lfd.uci.edu/~gohlke/pythonlibs/  下载fasttext的包。
+
 
 FastText与NumPy不兼容>=2.0.0的BUG：
 ```
