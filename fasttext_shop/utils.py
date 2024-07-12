@@ -20,23 +20,37 @@ def execute_time(func):
     return wrapper
 
 
-def load_toutiao_datas():
-    with open(
-        os.path.join(BASE_DIR, "toutiao", "toutiao_data.txt"), "r", encoding="utf-8"
-    ) as f:
-        datas = f.readlines()
-    return [d.split(",")[:2] for d in datas]
+def load_toutiao_datas(file_dir=None):
+    if file_dir:
+        with open(
+            os.path.join(file_dir, "toutiao_data.txt"), "r", encoding="utf-8"
+        ) as f:
+            datas = f.readlines()
+        return [d.split(",")[:2] for d in datas]
+    else:
+        with open(
+            os.path.join(BASE_DIR, "toutiao", "toutiao_data.txt"), "r", encoding="utf-8"
+        ) as f:
+            datas = f.readlines()
+        return [d.split(",")[:2] for d in datas]
 
 
-def load_toutiao_test_datas():
-    with open(
-        os.path.join(BASE_DIR, "toutiao", "toutiao_test_data.txt"),
-        "r",
-        encoding="utf-8",
-    ) as f:
+def load_toutiao_test_datas(file_dir=None):
+    if file_dir:
+        with open(
+            os.path.join(file_dir, "toutiao_test_data.txt"), "r", encoding="utf-8"
+        ) as f:
+            datas = f.readlines()
+        return [d.split(",")[:2] for d in datas]
+    else:
+        with open(
+            os.path.join(BASE_DIR, "toutiao", "toutiao_test_data.txt"),
+            "r",
+            encoding="utf-8",
+        ) as f:
 
-        datas = f.readlines()
-    return [d.split(",")[:2] for d in datas]
+            datas = f.readlines()
+        return [d.split(",")[:2] for d in datas]
 
 
 @lru_cache(maxsize=None)
